@@ -1,0 +1,64 @@
+{
+  "site_alerts": [
+    {
+      "name": "SQL Injection (Union Based)",
+      "risk": "High",
+      "description": "The 'id' parameter in the URL is vulnerable to SQL Injection. Attackers can retrieve sensitive database information using UNION SELECT statements. Payload used: ' UNION SELECT 1, user, password FROM users--",
+      "solution": "Use prepared statements (Parameterized Queries) and input validation."
+    },
+    {
+      "name": "Reflected Cross-Site Scripting (XSS)",
+      "risk": "Medium",
+      "description": "The search bar input is reflected back to the user without proper escaping. An attacker can execute arbitrary JavaScript code in the victim's browser. Payload: <script>alert('XSS')</script>",
+      "solution": "Implement context-sensitive output encoding and use Content Security Policy (CSP)."
+    },
+    {
+      "name": "Broken Access Control (IDOR)",
+      "risk": "High",
+      "description": "The application allows users to access other users' private data by modifying the 'user_id' parameter in the URL. For example, changing /profile?id=10 to /profile?id=11 reveals another user's profile.",
+      "solution": "Implement proper access control checks on the server side for every request."
+    },
+    {
+      "name": "Command Injection (RCE)",
+      "risk": "High",
+      "description": "The application passes unsafe user supplied data (forms) to a system shell. Using the ping command, an attacker was able to inject 'cat /etc/passwd' to read system files.",
+      "solution": "Avoid system calls. If necessary, use safer alternatives and strictly validate inputs."
+    },
+    {
+      "name": "Security Misconfiguration - Directory Listing",
+      "risk": "Medium",
+      "description": "Directory listing is enabled on the /uploads/ directory. Attackers can view and download all files uploaded to the server.",
+      "solution": "Disable directory browsing in the web server configuration (Apache/Nginx)."
+    },
+    {
+      "name": "Sensitive Data Exposure (Credit Card)",
+      "risk": "High",
+      "description": "Credit card numbers are stored in the database without encryption. Additionally, the application transmits data over HTTP instead of HTTPS.",
+      "solution": "Encrypt sensitive data at rest and ensure all data is transmitted over TLS/SSL."
+    },
+    {
+      "name": "Server-Side Request Forgery (SSRF)",
+      "risk": "High",
+      "description": "The 'url' parameter allows the server to make requests to internal network resources. Access to AWS Metadata (169.254.169.254) was confirmed.",
+      "solution": "Validate and whitelist allowed domains/IPs for outgoing requests."
+    },
+    {
+      "name": "Outdated Component (Apache 2.2)",
+      "risk": "Medium",
+      "description": "The server is running an outdated version of Apache (v2.2.15) which has known vulnerabilities.",
+      "solution": "Upgrade the web server to the latest stable version."
+    },
+    {
+      "name": "Weak Password Policy",
+      "risk": "Low",
+      "description": "The application allows users to set simple passwords like '123456'. No complexity requirements are enforced.",
+      "solution": "Enforce strong password policies (min 8 chars, mixed case, special chars)."
+    },
+    {
+      "name": "Missing Anti-CSRF Tokens",
+      "risk": "Medium",
+      "description": "Important state-changing forms (like password change) do not contain anti-CSRF tokens.",
+      "solution": "Implement Anti-CSRF tokens for all state-changing operations."
+    }
+  ]
+}
