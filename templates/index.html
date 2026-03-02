@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="tr" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Akıllı Zafiyet Analiz Platformu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <style>
+        /* Geçiş Efektleri - Yumuşak geçiş */
+        body { transition: background-color 0.3s, color 0.3s; }
+        .card { transition: background-color 0.3s, border-color 0.3s; }
+
+        /* Hero Alanı */
+        .hero { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            padding: 40px 0; 
+            margin-bottom: 30px; 
+            border-radius: 0 0 30px 30px; 
+            position: relative;
+        }
+
+        /* Tema Butonu */
+        .theme-toggle-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+        .theme-toggle-btn:hover { background: rgba(255, 255, 255, 0.4); transform: scale(1.05); }
+
+        /* Kart ve Tablo Düzenlemeleri */
+        .card { border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        
+        /* Dark Mode Override */
+        [data-bs-theme="dark"] .card { background-color: #2b3035; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        [data-bs-theme="dark"] body { background-color: #212529; }
+        
+        .loading { display: none; }
+        
+        /* Tab Tasarımı */
+        .nav-tabs .nav-link { border: none; color: #6c757d; font-weight: 600; }
+        .nav-tabs .nav-link.active { color: #764ba2; border-bottom: 3px solid #764ba2; background: transparent; }
+        .tab-content { padding-top: 20px; }
+
+        /* --- TABLO HİZALAMA DÜZELTMELERİ --- */
+        /* --- TABLO HİZALAMA DÜZELTMELERİ (V2 - DÜZENLİ) --- */
+        .table-responsive table {
+            width: 100% !important;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed; /* Sütun genişliklerini sabitlemeye zorlar */
+        }
+        
+        .table-responsive th {
+            background-color: #f8f9fa !important;
+            text-transform: uppercase;
+            font-size: 0.75rem; /* Başlık fontunu biraz küçülttük, sığsın diye */
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            padding: 12px !important;
+            text-align: left; /* Başlıkları sola yasla */
+            vertical-align: top !important; /* Başlıklar yukarıda */
+            border-bottom: 2px solid #dee2e6;
+            color: #495057;
+        }
+
+        .table-responsive td {
+            vertical-align: top !important; /* KRİTİK AYAR: İçerik hep en üstten başlar */
+            padding: 12px !important;
+            font-size: 0.9rem;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        /* 1. Sütun: Resim/İkon (Dar ve Ortalanmış) */
+        .table-responsive th:nth-child(1),
+        .table-responsive td:nth-child(1) {
+            width: 70px; /* Sabit genişlik */
+            text-align: center;
+        }
+
+        /* 2. Sütun: Tip (Dar) */
+        .table-responsive th:nth-child(2),
+        .table-responsive td:nth-child(2) {
+            width: 100px;
+        }
+
+        /* 3. Sütun: Dosya Adı (Uzun isimleri alta at) */
+        .table-responsive th:nth-child(3),
+        .table-responsive td:nth-child(3) {
+            width: 15%;
+            word-wrap: break-word;
+            word-break: break-all; /* Dosya adını zorla kırar, tabloyu taşatmaz */
+        }
+
+        /* 4. Sütun: Bulgu (Orta Genişlik) */
+        .table-responsive th:nth-child(4),
+        .table-responsive td:nth-child(4) {
+            width: 20%;
+        }
+
+        /* 5. Sütun: Detay/OCR (En Geniş) */
+        .table-responsive th:nth-child(5),
+        .table-responsive td:nth-child(5) {
+            width: 35%; /* Tablonun %35'ini buna ayır */
+            white-space: normal;
+            word-wrap: break-word;
+            color: #6c757d;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        /* 6. Sütun: Risk (En Sağda, Sabit) */
+        .table-responsive th:nth-child(6),
+        .table-responsive td:nth-child(6) {
+            width: 80px;
+            text-align: center;
+        }
+
+        /* Dark Mode Ayarları */
+        [data-bs-theme="dark"] .table-responsive th {
+            background-color: #343a40 !important;
+            color: #e9ecef;
+            border-bottom: 2px solid #495057;
+        }
+        [data-bs-theme="dark"] .table-responsive td {
+            color: #dee2e6;
+            border-bottom: 1px solid #343a40;
+        }
+        [data-bs-theme="dark"] .table-responsive td:nth-child(5) {
+            color: #adb5bd;
+        }
+    </style>
+    
+    <script>
+        // 1. Sayfa yüklenmeden hafızadaki temayı uygula (Titremeyi önler)
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-bs-theme', savedTheme);
+        })();
+
+        // 2. Sayfa tamamen yüklendiğinde İKONU güncelle
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+            const icon = document.getElementById('themeIcon');
+            if (currentTheme === 'dark') {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        });
+
+        // 3. Tema Değiştirme Fonksiyonu
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-bs-theme');
+            const icon = document.getElementById('themeIcon');
+            
+            let newTheme = 'light';
+            
+            if (currentTheme === 'light') {
+                newTheme = 'dark';
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                newTheme = 'light';
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+            
+            // Temayı uygula ve hafızaya kaydet
+            html.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        function showLoading(btnId) {
+            const form = document.getElementById(btnId).closest('form');
+            const submitBtn = form.querySelector('.submit-btn');
+            const loadingBtn = form.querySelector('.loading-btn');
+
+            submitBtn.style.display = 'none';
+            loadingBtn.style.display = 'inline-block';
+        }
+    </script>
+</head>
+<body>
+
+<div class="hero text-center">
+    <button class="theme-toggle-btn" onclick="toggleTheme()">
+        <i id="themeIcon" class="fas fa-moon"></i> Tema Değiştir
+    </button>
+    <h1 class="fw-bold"><i class="fas fa-brain"></i> HİBRİT ZAFİYET ANALİZİ</h1>
+    <p class="lead mb-0">JSON Raporları & EasyOCR Görüntü İşleme Modülü</p>
+</div>
+
+<div class="container pb-5">
+    <div class="card p-4 p-md-5">
+        
+        <ul class="nav nav-tabs mb-4" id="uploadTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="image-tab" data-bs-toggle="tab" data-bs-target="#imagePanel" type="button" role="tab">
+                    <i class="fas fa-camera"></i> Görsel Analizi (OCR)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="json-tab" data-bs-toggle="tab" data-bs-target="#jsonPanel" type="button" role="tab">
+                    <i class="fas fa-file-code"></i> JSON Rapor Analizi
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="imagePanel" role="tabpanel">
+                <div class="text-center mb-4">
+                    <h5 class="text-primary">Ekran Görüntüsü Yükleyin</h5>
+                    <p class="text-muted small">EasyOCR ile taranacak PNG veya JPG dosyalarını seçin.</p>
+                </div>
+                
+                <form method="POST" enctype="multipart/form-data" onsubmit="showLoading('imgSubmit')">
+                    <div class="mb-4">
+                        <input class="form-control form-control-lg" type="file" name="files" accept="image/png, image/jpeg, image/jpg" multiple required>
+                    </div>
+                    <div class="d-grid gap-2 col-md-8 mx-auto">
+                        <button type="submit" id="imgSubmit" class="submit-btn btn btn-primary btn-lg rounded-pill">
+                            <i class="fas fa-rocket"></i> Görüntüyü Tara
+                        </button>
+                        <button class="loading-btn btn btn-dark btn-lg rounded-pill loading" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm"></span> OCR İşleniyor...
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="tab-pane fade" id="jsonPanel" role="tabpanel">
+                <div class="text-center mb-4">
+                    <h5 class="text-success">JSON Veri Seti Yükleyin</h5>
+                    <p class="text-muted small">OWASP ZAP veya diğer araçlardan alınan .json raporlarını seçin.</p>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" onsubmit="showLoading('jsonSubmit')">
+                    <div class="mb-4">
+                        <input class="form-control form-control-lg" type="file" name="files" accept=".json,application/json" multiple required>
+                    </div>
+                    <div class="d-grid gap-2 col-md-8 mx-auto">
+                        <button type="submit" id="jsonSubmit" class="submit-btn btn btn-success btn-lg rounded-pill">
+                            <i class="fas fa-search"></i> Raporu Analiz Et
+                        </button>
+                        <button class="loading-btn btn btn-dark btn-lg rounded-pill loading" type="button" disabled>
+                            <span class="spinner-border spinner-border-sm"></span> JSON Ayrıştırılıyor...
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if table %}
+        <div class="mt-5 animate__animated animate__fadeIn">
+            <h3 class="border-bottom pb-2 mb-3 text-primary">
+                <i class="fas fa-clipboard-check"></i> Sonuç Raporu
+            </h3>
+            <div class="table-responsive bg-white rounded shadow-sm p-0"> 
+                {{ table | safe }}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if results %}
+        <div class="mt-5 animate__animated animate__fadeInUp">
+            {% set ns = namespace(found=false) %}
+            {% for row in results %}
+                {% if row.kb_nedir %}
+                    {% set ns.found = true %}
+                {% endif %}
+            {% endfor %}
+
+            {% if ns.found %}
+            <h3 class="border-bottom pb-2 mb-4 text-danger">
+                <i class="fas fa-shield-alt"></i> Zafiyet Bilgi & Korunma Rehberi
+            </h3>
+            
+            <div class="row">
+                {% for row in results %}
+                    {% if row.kb_nedir %}
+                    <div class="col-12 mb-4">
+                        <div class="card border-{{ row.Color }} shadow-sm h-100">
+                            <div class="card-header bg-{{ row.Color }} text-white d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-bug"></i> {{ row.Bulgu }}
+                                </h5>
+                                <span class="badge bg-light text-dark">{{ row.Dosya }}</span>
+                            </div>
+                            
+                            <div class="card-body">
+                                <div class="row g-4">
+                                    <div class="col-md-6 border-end">
+                                        <h6 class="text-primary fw-bold">
+                                            <i class="fas fa-book-open"></i> Bu Zafiyet Nedir?
+                                        </h6>
+                                        <p class="card-text text-muted" style="font-size: 1.05rem; line-height: 1.6;">
+                                            {{ row.kb_nedir }}
+                                        </p>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <h6 class="text-success fw-bold">
+                                            <i class="fas fa-lock"></i> Nasıl Korunulur?
+                                        </h6>
+                                        <p class="card-text text-muted" style="font-size: 1.05rem; line-height: 1.6;">
+                                            {{ row.kb_cozum }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+        </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
