@@ -1,0 +1,304 @@
+@using tezprojesi.Controllers
+@{
+    ViewData["Title"] = "Zafiyet Analizi";
+}
+
+<style>
+    :root {
+        --bg-color: #f8f9fa;
+        --card-bg: #ffffff;
+        --text-color: #212529;
+        --text-muted: #6c757d;
+        --border-color: #dee2e6;
+        --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    body.dark-mode {
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --text-color: #e0e0e0;
+        --text-muted: #a0a0a0;
+        --border-color: #333;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        transition: background-color 0.3s, color 0.3s;
+        overflow-x: hidden;
+    }
+
+    .card { background-color: var(--card-bg); border-color: var(--border-color); }
+    .text-muted { color: var(--text-muted) !important; }
+
+    /* HERO HEADER */
+    .hero-header {
+        background: var(--primary-gradient);
+        color: white;
+        padding: 80px 0 100px;
+        border-radius: 0 0 50% 50% / 0 0 30px 30px;
+        margin-bottom: 50px;
+        box-shadow: 0 10px 30px rgba(118, 75, 162, 0.3);
+        position: relative;
+        width: 100vw;
+        left: 50%;
+        right: 50%;
+        margin-left: -50vw;
+        margin-right: -50vw;
+    }
+
+    .hero-title { font-weight: 800; letter-spacing: 1px; text-transform: uppercase; font-size: 2.5rem; }
+    .hero-subtitle { font-size: 1.2rem; opacity: 0.9; font-weight: 300; }
+
+    /* Modern Başlıklar */
+    .section-header-modern {
+        font-size: 1.75rem;
+        font-weight: 700;
+        background: -webkit-linear-gradient(45deg, #667eea, #764ba2);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        border-bottom: 2px solid #e0e0e0;
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+        display: inline-block;
+        width: 100%;
+    }
+    .dark-mode .section-header-modern { border-bottom-color: #444; }
+
+    /* Kartlar */
+    .upload-card { margin-top: -60px; z-index: 10; position: relative; }
+    
+    .report-card {
+        border: none;
+        border-left: 6px solid #764ba2;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        transition: transform 0.2s;
+    }
+    .report-card:hover { transform: translateY(-5px); }
+
+    .btn-custom-primary {
+        background-color: #764ba2; color: white; border-radius: 50px;
+        padding: 12px 35px; font-weight: 600; border: none;
+        box-shadow: 0 4px 15px rgba(118, 75, 162, 0.4);
+        transition: all 0.3s;
+    }
+    .btn-custom-primary:hover { background-color: #5b3a82; transform: scale(1.05); color: white; }
+
+    /* Tema Butonu */
+    .theme-toggle {
+        position: absolute; top: 30px; right: 40px;
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: white; padding: 10px 20px; border-radius: 30px;
+        cursor: pointer; backdrop-filter: blur(5px); transition: 0.3s;
+        font-weight: 500;
+    }
+    .theme-toggle:hover { background: rgba(255, 255, 255, 0.35); }
+</style>
+
+<div class="hero-header text-center">
+    <button onclick="toggleTheme()" class="theme-toggle">
+        <i class="fas fa-moon me-2"></i><span id="theme-text">Karanlık Mod</span>
+    </button>
+    
+    <div class="container">
+        <h1 class="hero-title"><i class="fas fa-shield-virus me-3"></i>HİBRİT ZAFİYET ANALİZİ</h1>
+        <p class="hero-subtitle mt-3">Yapay Zeka Destekli Görüntü İşleme & JSON Raporlama Modülü</p>
+    </div>
+</div>
+
+<div class="container upload-card-container">
+    
+    <div class="card upload-card shadow-lg border-0 rounded-4 p-5 mb-5">
+        
+        @if (ViewBag.Error != null) {
+            <div class="alert alert-danger border-0 shadow-sm"><i class="fas fa-exclamation-triangle me-2"></i> @ViewBag.Error</div>
+        }
+        @if (ViewBag.Message != null) {
+            <div class="alert alert-success border-0 shadow-sm"><i class="fas fa-check-circle me-2"></i> @ViewBag.Message</div>
+        }
+
+        <ul class="nav nav-pills mb-4 justify-content-center" id="pills-tab" role="tablist">
+            <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#pills-img"><i class="fas fa-camera me-2"></i> Görsel Analizi (OCR)</button></li>
+            <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#pills-json"><i class="fas fa-file-code me-2"></i> JSON Rapor Analizi</button></li>
+        </ul>
+
+        <div class="tab-content" id="pills-tabContent">
+            
+            <div class="tab-pane fade show active" id="pills-img">
+                <div class="text-center py-4">
+                    <h5 class="mb-3 text-muted">Web Sitesi Ekran Görüntüsü Yükleyin</h5>
+                    <form method="post" enctype="multipart/form-data" asp-controller="Upload" asp-action="Image" onsubmit="showLoading('ocr-btn')">
+                        <div class="d-flex justify-content-center mt-3">
+                            <div class="input-group w-75">
+                                <input type="file" name="files" class="form-control" accept="image/*" required>
+                                <button type="submit" id="ocr-btn" class="btn btn-custom-primary">
+                                    <i class="fas fa-search me-2"></i> Görüntüyü Tara
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pills-json">
+                <div class="text-center py-4">
+                    <h5 class="mb-3 text-muted">OWASP ZAP Raporu Yükleyin</h5>
+                    <form method="post" enctype="multipart/form-data" asp-controller="Upload" asp-action="Json" onsubmit="showLoading('json-btn')">
+                        <div class="d-flex justify-content-center mt-3">
+                            <div class="input-group w-75">
+                                <input type="file" name="files" class="form-control" accept=".json" required>
+                                <button type="submit" id="json-btn" class="btn btn-custom-primary" style="background-color: #28a745;">
+                                    <i class="fas fa-file-import me-2"></i> Raporu Analiz Et
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    @if (ViewBag.Results != null)
+    {
+        var results = ViewBag.Results as List<tezprojesi.Controllers.ResultItem>;
+
+        if (results != null && results.Count > 0)
+        {
+            <div class="mb-5 animate__animated animate__fadeInUp">
+                <h3 class="section-header-modern">
+                    <i class="fas fa-list-ul me-2"></i> Tespit Edilen Kritik Bulgular
+                </h3>
+                
+                <div class="table-responsive rounded shadow-sm p-3 card">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>KAYNAK TİPİ</th>
+                                <th>DOSYA / URL</th>
+                                <th>BULGU ADI</th>
+                                <th>RİSK SEVİYESİ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in results)
+                            {
+                                // Risk rengini belirle
+                                string badgeColor = "info";
+                                string risk = item.Risk ?? "Belirsiz";
+                                if(risk.Contains("High") || risk.Contains("Yüksek")) badgeColor = "danger";
+                                else if(risk.Contains("Medium") || risk.Contains("Orta")) badgeColor = "warning";
+                                else if(risk.Contains("Low") || risk.Contains("Düşük")) badgeColor = "success";
+
+                                <tr>
+                                    <td><span class="badge bg-secondary">@(item.Tip ?? "Görüntü")</span></td>
+                                    <td class="small text-muted font-monospace">@(item.Dosya ?? "-")</td>
+                                    <td class="fw-bold">@(item.Bulgu ?? "Tanımsız")</td>
+                                    <td>
+                                        <span class="badge bg-@badgeColor px-3 py-2 rounded-pill">
+                                            @risk
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="animate__animated animate__fadeInUp animate__delay-1s">
+                <h3 class="section-header-modern">
+                    <i class="fas fa-book-reader me-2"></i> Zafiyet Detay & Çözüm Rehberi
+                </h3>
+
+                @foreach (var item in results)
+                {
+                    // Risk rengini tekrar belirle
+                    string colorClass = "info";
+                    string risk = item.Risk ?? "";
+                    if(risk.Contains("High") || risk.Contains("Yüksek")) colorClass = "danger";
+                    else if(risk.Contains("Medium") || risk.Contains("Orta")) colorClass = "warning";
+                    else if(risk.Contains("Low") || risk.Contains("Düşük")) colorClass = "success";
+
+                    <div class="card report-card mb-5">
+                        <div class="card-body p-5">
+                            <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+                                <div class="bg-light rounded-circle p-3 text-@colorClass me-3 border shadow-sm">
+                                    <i class="fas fa-bug fa-2x"></i>
+                                </div>
+                                <div>
+                                    <h3 class="mb-1 fw-bold text-dark">@(item.Bulgu ?? "Bilinmeyen Zafiyet")</h3>
+                                    <span class="badge bg-light text-dark border px-3 py-2">
+                                        Risk: <span class="text-@colorClass fw-bold">@risk</span>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="row g-5">
+                                <div class="col-md-6">
+                                    <div class="h-100 p-4 bg-light rounded-3 border-start border-4 border-primary shadow-sm">
+                                        <h5 class="fw-bold text-primary mb-3">
+                                            <i class="fas fa-info-circle me-2"></i> Teknik Analiz
+                                        </h5>
+                                        <p class="text-secondary mb-0 text-justify" style="line-height: 1.8; text-align: justify;">
+                                            @(item.kb_nedir ?? "AI tarafından açıklama üretilemedi.")
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="h-100 p-4 bg-light rounded-3 border-start border-4 border-success shadow-sm">
+                                        <h5 class="fw-bold text-success mb-3">
+                                            <i class="fas fa-tools me-2"></i> Çözüm Stratejileri
+                                        </h5>
+                                        <p class="text-secondary mb-0 text-justify" style="line-height: 1.8; text-align: justify;">
+                                            @(item.Cozum ?? "AI tarafından çözüm üretilemedi.")
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+
+<script>
+    // Butona basınca "Yükleniyor..." yazısı çıksın diye
+    function showLoading(btnId) {
+        var btn = document.getElementById(btnId);
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Analiz Yapılıyor...';
+        btn.disabled = true;
+        // Form submit olmasına izin veriyoruz, sadece butonu kilitledik.
+    }
+
+    // Tema Değiştirme Fonksiyonu
+    function toggleTheme() {
+        var body = document.body;
+        body.classList.toggle("dark-mode");
+        var themeText = document.getElementById("theme-text");
+        var icon = document.querySelector(".theme-toggle i");
+        if (body.classList.contains("dark-mode")) {
+            themeText.innerText = "Aydınlık Mod";
+            icon.classList.remove("fa-moon"); icon.classList.add("fa-sun");
+            localStorage.setItem("theme", "dark");
+        } else {
+            themeText.innerText = "Karanlık Mod";
+            icon.classList.remove("fa-sun"); icon.classList.add("fa-moon");
+            localStorage.setItem("theme", "light");
+        }
+    }
+    
+    // Sayfa Yüklendiğinde Tema Kontrolü
+    window.onload = function() {
+        if (localStorage.getItem("theme") === "dark") {
+            document.body.classList.add("dark-mode");
+            document.getElementById("theme-text").innerText = "Aydınlık Mod";
+            document.querySelector(".theme-toggle i").classList.replace("fa-moon", "fa-sun");
+        }
+    }
+</script>

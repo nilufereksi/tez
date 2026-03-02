@@ -1,0 +1,32 @@
+[
+  {
+    "name": "SQL Injection (Critical Data Dump)",
+    "description": "User ID alanına '4.png' görselindeki payload girildi. Sonuç olarak 'Sekil_4_1_SQL_Injection_Kaniti.png' ve '12 Sekil_4_4_Brute_Force_Kaniti.png.png' görsellerinde görüldüğü üzere veritabanındaki tüm kullanıcılar (admin, Gordon, Pablo) ifşa edildi. Kaynak kod analizinde ('7.png' ve '6 0.png') girdilerin sanitize edilmediği doğrulandı.",
+    "tool": "Manuel / DVWA",
+    "severity": "High"
+  },
+  {
+    "name": "Reflected XSS (Session Hijacking)",
+    "description": "Girdi alanına '5.png' görselindeki JavaScript kodu enjekte edildi. Tarayıcıda '6.png' görselindeki gibi oturum çerezi (PHPSESSID) çalındı. Zafiyetin nedeni '9.png' görselindeki kaynak kodda, girdinin doğrudan ekrana basılmasıdır. 'Sekil_4_2_XSS_Kaniti.png.png' ile zafiyetin tetiklendiği doğrulanmıştır.",
+    "tool": "Manuel / DVWA",
+    "severity": "Medium"
+  },
+  {
+    "name": "Command Injection (RCE)",
+    "description": "IP adresi alanına '10.png' görselindeki gibi && operatörü ile işletim sistemi komutu eklendi. '11 Sekil_4_3_Command_Injection_Kaniti.png' görselinde sunucunun bu komutu çalıştırdığı ve ping yanıtı döndüğü kanıtlandı.",
+    "tool": "Manuel / DVWA",
+    "severity": "High"
+  },
+  {
+    "name": "Security Misconfiguration (Setup)",
+    "description": "DVWA kurulum ekranlarında ('1.png' ve '2.png') sunucu yapılandırması incelendi. 'Status in Red' uyarısı, reCAPTCHA anahtarının eksikliği ve yazılabilir (writable) sistem klasörlerinin varlığı tespit edildi.",
+    "tool": "Manuel / DVWA",
+    "severity": "Low"
+  },
+  {
+    "name": "Weak Authentication (Brute Force Surface)",
+    "description": "Sistemin giriş paneli ('Şekil 3.1_ Kurulan test ortamının (DVWA) giriş arayüzü.png') ve Brute Force modülü ('3.png') üzerinde zayıf parola denemeleri gerçekleştirildi. Hata mesajlarının kullanıcı adlarını ifşa ettiği gözlemlendi.",
+    "tool": "Manuel / DVWA",
+    "severity": "Medium"
+  }
+]

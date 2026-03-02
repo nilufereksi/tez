@@ -1,0 +1,34 @@
+{
+    "site_alerts": [
+        {
+            "name": "SQL Enjeksiyonu Tespiti (Kritik)",
+            "risk": "High",
+            "description": "Giriş ekranındaki kullanıcı adı alanında SQL sorguları çalıştırılabiliyor. Saldırganlar veritabanındaki tüm kullanıcı şifrelerini çalabilir. (Örnek Payload: ' OR '1'='1)",
+            "solution": "Parametreli sorgular (Prepared Statements) kullanılmalı ve girdi denetimi yapılmalıdır."
+        },
+        {
+            "name": "Siteler Arası Komut Çalıştırma (XSS)",
+            "risk": "Medium",
+            "description": "Arama çubuğuna girilen JavaScript kodları, sayfayı ziyaret eden diğer kullanıcıların tarayıcısında çalışıyor. Bu durum oturum çerezlerinin (cookies) çalınmasına yol açabilir.",
+            "solution": "Kullanıcı girdileri filtrelenmeli (Input Validation) ve çıktı kodlanmalıdır (Output Encoding)."
+        },
+        {
+            "name": "Güvensiz Nesne Referansı (IDOR)",
+            "risk": "High",
+            "description": "URL adresindeki 'id' parametresi değiştirilerek (örneğin 10 yerine 11 yazılarak) başka bir müşterinin sipariş detaylarına yetkisiz erişim sağlanabiliyor.",
+            "solution": "Sunucu tarafında kullanıcının o veriye erişim yetkisi olup olmadığı her istekte kontrol edilmelidir."
+        },
+        {
+            "name": "Hassas Veri İfşası (Kredi Kartı)",
+            "risk": "High",
+            "description": "Veritabanı yedeklerinde müşterilerin kredi kartı numaraları şifrelenmeden, açık metin (cleartext) olarak saklanmaktadır.",
+            "solution": "Hassas veriler veritabanında AES-256 gibi güçlü algoritmalarla şifrelenerek saklanmalıdır."
+        },
+        {
+            "name": "Güncel Olmayan Yazılım Bileşeni",
+            "risk": "Low",
+            "description": "Sunucuda kullanılan Apache versiyonu çok eski (v2.2) ve bilinen güvenlik açıklarına sahip.",
+            "solution": "Sunucu yazılımı en son kararlı sürüme güncellenmelidir."
+        }
+    ]
+}

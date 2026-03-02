@@ -1,0 +1,94 @@
+{
+  "site_alerts": [
+    {
+      "name": "A01: Broken Access Control (IDOR) - Critical",
+      "description": "Burp Suite Repeater ile '/rest/basket/' endpointine yapılan testlerde, yetki kontrolü atlatıldı. 'basket6_200Ok.png' görselinde UserId: 23'e ait sepete, 'basket7_200Ok.png' görselinde ise UserId: 24'e ait sepete aynı oturum bilgisiyle erişim sağlandı (HTTP 200 OK). Bu durum, yatay yetki yükseltme (Horizontal Privilege Escalation) zafiyetini doğrulamaktadır.",
+      "tool": "Burp Suite",
+      "severity": "Critical"
+    },
+    {
+      "name": "A10: Server-Side Request Forgery (SSRF)",
+      "description": "Profil resmi yükleme modülünde SSRF zafiyeti tespit edilmiştir. 'Image URL' alanına sunucunun dahili adresi olan 'http://localhost:3000/ftp' enjekte edilmiştir (Kanıt: '2-url yukleme pp.png'). Burp Suite analizinde ('5-Url degistirip success.png') sunucunun bu isteği engellemediği ve 'HTTP 302 Found' yanıtı döndüğü görülmüştür. Profildeki kırık resim ikonu ('6-sonucta degisen pp.png'), sunucunun yerel kaynağa erişmeye çalıştığını doğrular (Blind SSRF).",
+      "tool": "Burp Suite",
+      "severity": "High"
+    },
+    {
+      "name": "A08: Software and Data Integrity Failures (Logic Bypass)",
+      "description": "İş mantığı bütünlüğü ihlal edilmiştir. Geri bildirim formunda ('3.2-feedback kismi owasp.png') arayüz kullanıcıyı 1-5 puan arasına zorlarken, Burp Suite ile 'rating: 0' değeri enjekte edilmiş ('3-success feedback kismi.png') ve sunucu bu geçersiz veriyi kabul ederek veritabanına işlemiştir (HTTP 201 Created).",
+      "tool": "Burp Suite",
+      "severity": "High"
+    },
+    {
+      "name": "A05: Security Misconfiguration (Directory Listing)",
+      "description": "Sunucu yapılandırma hatası nedeniyle '/ftp' dizini dışarıya açık bırakılmıştır (Kanıt: 'A05_FTP_DizinListeleme_Detay.png'). Bu dizinde kritik önem taşıyan 'incident-support.kdbx' (KeePass şifre kasası) ve 'package.json.bak' gibi yedekleme dosyaları ifşa olmuştur.",
+      "tool": "Burp Suite",
+      "severity": "High"
+    },
+    {
+      "name": "A09: Security Logging and Monitoring Failures (Exposed Logs)",
+      "description": "Hassas log kayıtları korunmamaktadır. '/ftp' dizininde tespit edilen 'suspicious_errors.yml' dosyası ('A05_FTP_DizinListeleme_Detay.png'), sistemdeki hata ve uyarı kayıtlarını halka açık şekilde ifşa etmektedir.",
+      "tool": "Burp Suite",
+      "severity": "High"
+    },
+    {
+      "name": "A03: Injection (Potential SQL Injection)",
+      "description": "Arama çubuğu (Search Bar) üzerinde yapılan taramada, tek tırnak (') karakterine verilen sunucu tepkisi SQL Injection ihtimalini göstermektedir. DVWA üzerinde doğrulanan SQLi zafiyetine benzer şekilde, Juice Shop üzerinde de girdi doğrulama eksikliği raporlanmıştır (Risk Analizi - Otomatize Tarama Bulgusu).",
+      "tool": "Burp Scanner (Heuristic)",
+      "severity": "High"
+    },
+    {
+      "name": "A02: Cryptographic Failures (Weak Encryption)",
+      "description": "Otomatize tarama sonucunda, uygulamanın bazı hassas verileri (kullanıcı şifreleri) veritabanında zayıf şifreleme algoritmalarıyla (MD5) sakladığına dair işaretler tespit edilmiştir. Ayrıca HTTPS üzerinden iletilmeyen bazı form verileri 'Cleartext Submission' uyarısı vermiştir.",
+      "tool": "Burp Scanner (Passive)",
+      "severity": "High"
+    },
+    {
+      "name": "A04: Insecure Design (Client-Side Validation Bypass)",
+      "description": "Şikayet formunda Frontend tarafında 160 karakter sınırı olduğu ('1-juice shop test ss.png') görülmüştür. Ancak Burp Suite ile yapılan manipülasyonda ('3-degisen ss.png'), bu sınır aşılarak binlerce karakterlik 'message' payload'ı gönderilmiş ve sunucu tarafından kabul edilmiştir (HTTP 201 Created). Backend tarafında iş mantığı kontrolü eksiktir.",
+      "tool": "Burp Suite",
+      "severity": "Medium"
+    },
+    {
+      "name": "A06: Vulnerable and Outdated Components (Version Disclosure)",
+      "description": "Hata sayfalarında sunucu teknolojisi ve versiyon bilgisi gizlenmemiştir. '3-404 hatasi.png' görselinde sunucunun 'Express ^4.21.0' kullandığı açıkça ifşa edilmiştir. Ayrıca '/ftp' dizininde 'coupons_2013.md.bak' gibi eski yıla ait yedek dosyalarının bulunması, eski bileşenlerin temizlenmediğini gösterir.",
+      "tool": "Burp Suite",
+      "severity": "Medium"
+    },
+    {
+      "name": "A08: Software and Data Integrity Failures (File Upload)",
+      "description": "Dosya yükleme mekanizmasında bütünlük kontrolleri yetersizdir. '1-burp istegi test dosyasi yukleme.png' ve '2-burp repeaterda xml uzanti degistirme.png' görsellerinde görüldüğü üzere, dosya uzantısı (.xml) ve Content-Type başlıkları manipüle edilerek sisteme beklenmeyen dosya türleri yüklenmeye çalışılmıştır.",
+      "tool": "Burp Suite",
+      "severity": "Medium"
+    },
+    {
+      "name": "A09: Security Logging and Monitoring Failures (No Rate Limiting)",
+      "description": "Giriş panelinde ('2-pswd deneme 2.png') yapılan çoklu hatalı giriş denemelerinde (Brute Force), sistemin herhangi bir hesap kilitleme veya IP engelleme mekanizmasını devreye sokmadığı tespit edilmiştir. Saldırılar loglanmakta ancak engellenmemektedir.",
+      "tool": "Manuel / Burp Suite",
+      "severity": "Medium"
+    },
+    {
+      "name": "A05: Security Misconfiguration (CORS & Headers)",
+      "description": "Burp Suite analizinde ('Eksik guvenlik basliklari ss burp.png'), sunucunun 'Access-Control-Allow-Origin: *' başlığı ile yapılandırıldığı görülmüştür. Bu durum, yetkisiz kaynakların API verilerini okumasına olanak tanır. Ayrıca katı güvenlik başlıkları eksiktir.",
+      "tool": "Burp Suite",
+      "severity": "Medium"
+    },
+    {
+      "name": "A05: Security Misconfiguration (Stack Trace Exposure)",
+      "description": "Uygulama hataları düzgün yönetilememektedir. '3-404 hatasi.png' ve '2-package.json.bak icerigi.png' görsellerinde görüldüğü üzere, sunucu 403/404 hatalarında detaylı 'Stack Trace' (kod dosya yolları: /juice-shop/build/routes/) döndürmektedir.",
+      "tool": "Burp Suite",
+      "severity": "Medium"
+    },
+    {
+      "name": "A07: Identification and Authentication Failures",
+      "description": "Parola politikaları yetersizdir. Sistemin 'admin123', 'password' gibi çok zayıf parolaları kabul ettiği ve MFA (Çok Faktörlü Kimlik Doğrulama) zorunluluğu olmadığı tespit edilmiştir. Oturum yönetimi (Session Fixation) testlerinde çerezlerin giriş sonrası yenilenmediği gözlemlenmiştir.",
+      "tool": "Burp Scanner (Passive)",
+      "severity": "Medium"
+    },
+    {
+      "name": "Sensitive Data Exposure (API Response)",
+      "description": "API yanıtlarında (Response Body) gereksiz detaylar ifşa edilmektedir. Sepet içeriği, UserId, e-posta ve ürün detayları şifrelenmeden veya maskelenmeden JSON formatında dönmektedir (Görsel: basket6_200Ok.png).",
+      "tool": "Burp Suite",
+      "severity": "Medium"
+    }
+  ]
+}
