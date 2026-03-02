@@ -1,0 +1,97 @@
+{
+  "@programName": "OWASP ZAP",
+  "@version": "2.14.0",
+  "@generated": "Thu, 09 Jan 2026 12:00:00",
+  "site": [
+    {
+      "@name": "http://test-hedef-site.com",
+      "@host": "test-hedef-site.com",
+      "@port": "80",
+      "alerts": [
+        {
+          "pluginid": "10021",
+          "alert": "X-Content-Type-Options Başlığı Eksik",
+          "name": "X-Content-Type-Options Başlığı Eksik",
+          "riskcode": "1",
+          "confidence": "2",
+          "risk": "Düşük",
+          "instances": [
+            {
+              "uri": "http://test-hedef-site.com/giris",
+              "method": "GET",
+              "param": ""
+            }
+          ],
+          "count": "1",
+          "description": "Anti-MIME-Sniffing başlığı olan X-Content-Type-Options 'nosniff' olarak ayarlanmamış. Bu durum, eski tarayıcıların MIME türlerini yanlış yorumlamasına ve güvenlik açıklarına neden olabilir.",
+          "solution": "Uygulama veya web sunucusunun Content-Type başlığını doğru şekilde ayarladığından ve X-Content-Type-Options başlığının 'nosniff' olduğundan emin olun.",
+          "cweid": "16",
+          "wascid": "15",
+          "sourceid": ""
+        },
+        {
+          "pluginid": "40018",
+          "alert": "SQL Enjeksiyonu",
+          "name": "SQL Enjeksiyonu",
+          "riskcode": "3",
+          "confidence": "3",
+          "risk": "Yüksek",
+          "instances": [
+            {
+              "uri": "http://test-hedef-site.com/urunler?id=1'",
+              "method": "GET",
+              "param": "id"
+            }
+          ],
+          "count": "1",
+          "description": "SQL Enjeksiyonu mümkün olabilir. Tarayıcı, veritabanı sorgusunu başarıyla manipüle etti ve veritabanı yapısını değiştirebilecek komutlar gönderdi.",
+          "solution": "İstemci tarafından gelen girdilere asla güvenmeyin. Veritabanı işlemleri için 'Hazırlanmış İfadeler' (Prepared Statements) veya parametreli sorgular kullanın.",
+          "cweid": "89",
+          "wascid": "19",
+          "sourceid": ""
+        },
+        {
+          "pluginid": "40012",
+          "alert": "Siteler Arası Betik Çalıştırma (XSS - Reflected)",
+          "name": "Siteler Arası Betik Çalıştırma (XSS - Reflected)",
+          "riskcode": "2",
+          "confidence": "3",
+          "risk": "Orta",
+          "instances": [
+            {
+              "uri": "http://test-hedef-site.com/arama?q=<script>alert(1)</script>",
+              "method": "GET",
+              "param": "q"
+            }
+          ],
+          "count": "1",
+          "description": "Siteler arası betik çalıştırma (XSS), saldırganın güvenilir bir web sayfasına zararlı kod (genellikle JavaScript) enjekte etmesine izin veren bir zafiyettir.",
+          "solution": "Çıktı kodlaması (Output Encoding) en etkili çözümdür. Kullanıcıdan alınan tüm girdileri doğrulayın ve ekrana basarken HTML encode işleminden geçirin.",
+          "cweid": "79",
+          "wascid": "8",
+          "sourceid": ""
+        },
+        {
+            "pluginid": "10023",
+            "alert": "Bilgi İfşası - Hata Ayıklama Mesajları",
+            "name": "Bilgi İfşası - Hata Ayıklama Mesajları",
+            "riskcode": "2",
+            "confidence": "2",
+            "risk": "Orta",
+            "instances": [
+              {
+                "uri": "http://test-hedef-site.com/api/v1/kullanicilar",
+                "method": "POST",
+                "param": ""
+              }
+            ],
+            "description": "Web uygulaması, yığın izleri (stack traces) veya diğer hassas hata ayıklama bilgilerini içeren ayrıntılı hata mesajlarını kullanıcıya gösteriyor.",
+            "solution": "Canlı (Production) ortamda hata ayıklama mesajlarını devre dışı bırakın. Kullanıcılar için genel ve güvenli özel hata sayfaları yapılandırın.",
+            "cweid": "200",
+            "wascid": "13",
+            "sourceid": ""
+          }
+      ]
+    }
+  ]
+}
